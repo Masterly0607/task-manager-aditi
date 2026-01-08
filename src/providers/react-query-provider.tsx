@@ -1,16 +1,31 @@
+// "use client";
+
+// import { QueryClientProvider } from "@tanstack/react-query";
+// import { queryClient } from "@/lib/query-client";
+
+// export default function ReactQueryProvider({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+//   );
+// }
+
 "use client";
 
+import * as React from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "@/lib/query-client";
+import { makeQueryClient } from "@/lib/query-client";
 
-export default function ReactQueryProvider({
+export function ReactQueryProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  const [client] = React.useState(() => makeQueryClient());
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
 // Main goal of react-query-provider.tsx = Make the whole app able to use React Query: Wraps the app with QueryClientProvider, Turns React Query ON, sed once (in layout.tsx).
 // Main goal of lib/query-client.ts = Configure default React Query behavior: Cache time, Retry count, Refetch rules, Create ONE shared QueryClient
