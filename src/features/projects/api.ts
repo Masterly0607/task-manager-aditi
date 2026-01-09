@@ -1,10 +1,10 @@
-import { apiClient } from "@/lib/api-client";
+import { apiGet } from "@/lib/api-client";
 import type { Project } from "./types";
 
 export async function getProjects() {
-  return apiClient.get<Project[]>(`/projects`);
+  return apiGet<Project[]>(`/projects`);
 }
 
 export async function getProject(id: string) {
-  return apiClient.get<Project>(`/projects/${id}`);
+  return apiGet<Project>(`/projects/${id}`);
 }
