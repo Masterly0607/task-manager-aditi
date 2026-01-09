@@ -204,7 +204,7 @@ git commit -m "feat: implement tasks list UI"
 git push origin feat/your-feature-name
 ```
 
-❌ Do NOT push to `main`  
+❌ Do NOT push to `main`
 ❌ Do NOT push to `dev`
 
 ---
