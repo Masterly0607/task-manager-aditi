@@ -1,6 +1,7 @@
 "use client";
 
 import { EmptyState } from "@/components/common/empty-state";
+import { Loader } from "@/components/common/loader";
 import { TaskRow } from "@/components/tasks/task-row";
 import { Card } from "@/components/ui/card";
 import {
@@ -59,7 +60,7 @@ export default function TasksPage() {
 
   // Loading state
   if (tasksQ.isLoading || projectsQ.isLoading) {
-    return <div>Loading tasks...</div>;
+    return <Loader label="Loading tasks..." />;
   }
 
   return (

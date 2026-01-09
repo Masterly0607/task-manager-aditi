@@ -12,7 +12,7 @@ export function PageHeader({
   right?: React.ReactNode;
 }) {
   return (
-    <div className="-mx-6 border-b bg-background px-6 py-4">
+    <div className="p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h1 className="truncate text-xl font-semibold leading-none">
