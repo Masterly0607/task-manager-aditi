@@ -6,6 +6,8 @@ export function EmptyState({
 }: {
   title?: string;
   message?: string;
+  actionLabel?: string;
+  actionHref?: string;
 }) {
   return (
     <div className="rounded-xl border bg-card p-8 text-center">

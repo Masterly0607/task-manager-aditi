@@ -1,11 +1,15 @@
+import { Skeleton } from '@/components/ui/skeleton'
 import React from 'react'
 
-const loading = () => {
+const Loading = () => {
   return (
-    <div>
-      
+    <div className="space-y-4">
+      <Skeleton className="h-7 w-44" />
+      <Skeleton className="h-40 w-full rounded-2xl" />
+      <Skeleton className="h-52 w-full rounded-2xl" />
+      <Skeleton className="h-52 w-full rounded-2xl" />
     </div>
   )
 }
 
-export default loading
+export default Loading;

@@ -1,9 +1,10 @@
 "use client";
+
 import { EmptyState } from "@/components/common/empty-state";
 import { TaskRow } from "@/components/tasks/task-row";
 import { Card } from "@/components/ui/card";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useProjects } from "@/features/projects/hooks";
 import { useTasks } from "@/features/tasks/hooks";
 import { Search } from "lucide-react";
@@ -24,6 +25,13 @@ export default function TasksPage() {
   const [tab, setTab] = useState<TabKey>("all");
   const [q, setQ] = useState("");
 
+  // Map projectId -> projectName for easy lookup
+  const projectNameById = useMemo(() => {
+    const projects = projectsQ.data ?? [];
+    return new Map(projects.map((p) => [p.id, p.name]));
+  }, [projectsQ.data]);
+
+  // Filter tasks by tab and search query
   const filtered = useMemo(() => {
     const tasks = tasksQ.data ?? [];
     const status = statusByTab[tab];
@@ -39,13 +47,22 @@ export default function TasksPage() {
         );
       })
       .sort((a, b) => {
-        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        const aTime = a.dueDate ? new Date(a.dueDate).getTime() : 0;
+        const bTime = b.dueDate ? new Date(b.dueDate).getTime() : 0;
+        return aTime - bTime;
       });
   }, [tasksQ.data, tab, q]);
+
+  // Loading state
+  if (tasksQ.isLoading || projectsQ.isLoading) {
+    return <div>Loading tasks...</div>;
+  }
+
   return (
     <div className="space-y-6">
-      <h1>Page Header</h1>
+      <h1 className="text-2xl font-bold">Tasks</h1>
 
+      {/* Tabs + Search */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
           <TabsList>
@@ -58,7 +75,11 @@ export default function TasksPage() {
 
         <div className="relative w-full md:w-[320px]">
           <InputGroup>
-            <InputGroupInput value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search..." />
+            <InputGroupInput
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search..."
+            />
             <InputGroupAddon>
               <Search />
             </InputGroupAddon>
@@ -66,23 +87,25 @@ export default function TasksPage() {
         </div>
       </div>
 
+      {/* Task List */}
       <Card className="rounded-2xl">
         {filtered.length === 0 ? (
           <EmptyState
             title="No tasks found"
             message="You don’t have any tasks yet. Create one to get started."
-            // actionLabel="+ New Task"
-            // actionHref="/tasks/new"
+            actionLabel="+ New Task"
+            actionHref="/tasks/new"
           />
         ) : (
           <div className="divide-y">
-            {filtered.map((t) => (
-              <TaskRow
-                key={t.id}
-                task={t}
-                projectName={projectNameById.get(t.projectId) ?? "—"}
-              />
-            ))}
+            {filtered.map((t) => {
+              const taskWithProjectName = {
+                ...t,
+                projectName: projectNameById.get(t.projectId) ?? "—",
+              };
+
+              return <TaskRow key={t.id} task={taskWithProjectName} />;
+            })}
           </div>
         )}
       </Card>
