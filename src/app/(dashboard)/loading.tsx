@@ -1,11 +1,5 @@
-import DragonSpinner from '@/components/common/dragon-spinner'
-
 const loading = () => {
-return (
-    <div>
-        {/* <DragonSpinner /> */}
-    </div>
-    )
-}
+  return <div>{/* <DragonSpinner /> */}</div>;
+};
 
-export default loading
+export default loading;
