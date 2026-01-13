@@ -1,49 +1,56 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-// import { PageHeader } from "@/components/common/page-header";
+
+import { TaskForm } from "@/components/tasks/task-form";
+import { useCreateTask } from "@/features/tasks/hooks";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 
-export default function NewTaskPage() {
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    if (typeof msg === "string") return msg;
+  }
+
+  return "Failed to create task";
+}
+
+export default function CreateTaskPage() {
+  const router = useRouter();
+  const createTask = useCreateTask();
+
   return (
-    <div className="space-y-4">
-      {/* <PageHeader
-        title="Create Task"
-        right={
-          <Button asChild variant="outline">
-            <Link href="/tasks">Back</Link>
-          </Button>
-        }
-      /> */}
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Create Task</h1>
+          <p className="text-sm text-muted-foreground">
+            Fill in the details and create a new task.
+          </p>
+        </div>
 
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-base">New Task</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Title</Label>
-            <Input placeholder="Task title..." />
-          </div>
-          <div className="space-y-2">
-            <Label>Due Date</Label>
-            <Input type="date" />
-          </div>
-          <div className="md:col-span-2 space-y-2">
-            <Label>Description</Label>
-            <Textarea placeholder="Task description..." />
-          </div>
+        <Button asChild variant="outline">
+          <Link href="/tasks">Back</Link>
+        </Button>
+      </div>
 
-          <div className="md:col-span-2 flex gap-2">
-            <Button disabled>Create</Button>
-            <Button variant="secondary" asChild>
-              <Link href="/tasks">Cancel</Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <TaskForm
+        submitText="Create"
+        loading={createTask.isPending}
+        onSubmit={async (values) => {
+          await createTask.mutateAsync(values);
+          router.push("/tasks");
+        }}
+      />
+
+      {createTask.isError && (
+        <p className="text-sm text-red-600">
+          {getErrorMessage(createTask.error)}
+        </p>
+      )}
     </div>
   );
 }

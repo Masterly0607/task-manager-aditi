@@ -1,27 +1,12 @@
-import type { TaskPriority, TaskStatus } from "@/constants/statuses";
-
-export type Subtask = {
-  id: string;
-  title: string;
-  completed: boolean;
-};
-
-export type Comment = {
-  id: string;
-  author: string;
-  content: string;
-  createdAt: string;
-};
+export type TaskPriority = "low" | "medium" | "high";
+export type TaskStatus = "todo" | "in-progress" | "done";
 
 export type Task = {
   id: string;
   title: string;
   description: string;
   projectId: string;
-  status: TaskStatus;
   priority: TaskPriority;
-  dueDate: string;
-  tags: string[];
-  subtasks: Subtask[];
-  comments: Comment[];
+  status: TaskStatus;
+  dueDate: string; // YYYY-MM-DD
 };
