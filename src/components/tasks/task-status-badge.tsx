@@ -2,18 +2,21 @@ import { Badge } from "../ui/badge";
 
 type UiStatus = "to-do" | "in-progress" | "done";
 
-function normalizeStatus(raw: string): UiStatus {
-  const s = raw.toLowerCase().trim();
+function normalizeStatus(raw?: string | null): UiStatus {
+  const s = (raw ?? "").toLowerCase().trim();
 
   if (s === "done" || s === "completed") return "done";
   if (s === "in-progress" || s === "in progress") return "in-progress";
 
-  if (s === "to-do" || s === "todo" || s === "to do" || s === "pending")
+  if (s === "to-do" || s === "todo" || s === "to do" || s === "pending") {
     return "to-do";
+  }
 
+  // default when missing/unknown
   return "to-do";
 }
-export function TaskStatusBadge({ status }: { status: string }) {
+
+export function TaskStatusBadge({ status }: { status?: string | null }) {
   const st = normalizeStatus(status);
 
   const styles: Record<UiStatus, string> = {
@@ -27,6 +30,7 @@ export function TaskStatusBadge({ status }: { status: string }) {
     "in-progress": "In Progress",
     done: "Done",
   };
+
   return (
     <Badge className={`rounded-md px-2 py-0.5 text-xs ${styles[st]}`}>
       {label[st]}

@@ -300,6 +300,8 @@ git merge dev
 - Build task-related UI components
 - Integrate React Query hooks
 - Handle loading & error states
+- Add edit task list with React Hook Form
+- Add delete and edit functions in the task detail page
 
 **Folders**
 
@@ -330,6 +332,7 @@ git merge dev
 - Build dashboard UI
 - Summary cards
 - Recent tasks widget
+- Update create task page with React Hook Form(ass2)
 
 **Folders**
 
@@ -356,6 +359,10 @@ git merge dev
 - API client & React Query setup
 - Environment variables
 - PR reviews & final integration
+- Set up Zod and React form(ass2)
+- Add zod schema(ass2)
+- Add some global code to task features (ass2)
+- Add task-form and confirm-dialog components (ass2)
 
 **Folders**
 
