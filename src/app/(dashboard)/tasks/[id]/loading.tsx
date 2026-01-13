@@ -1,5 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import React from 'react'
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Loading = () => {
   return (
@@ -9,7 +8,7 @@ const Loading = () => {
       <Skeleton className="h-52 w-full rounded-2xl" />
       <Skeleton className="h-52 w-full rounded-2xl" />
     </div>
-  )
-}
+  );
+};
 
 export default Loading;

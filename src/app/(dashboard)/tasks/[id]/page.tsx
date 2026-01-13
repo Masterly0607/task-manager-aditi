@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Bell,
   CalendarIcon,
@@ -19,13 +19,12 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { Loader } from "@/components/common/loader";
 import { ErrorState } from "@/components/common/error-state";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
 
-import { useTask } from "@/features/tasks/hooks";
+import { useDeleteTask, useTask } from "@/features/tasks/hooks";
 import { useProjects } from "@/features/projects/hooks";
 
 import { TaskDetailCard } from "@/components/tasks/task-detail-card";
-import { SubtasksCard } from "@/components/tasks/subtasks-card";
-import { CommentsCard } from "@/components/tasks/comments-card";
 
 import {
   Select,
@@ -44,6 +43,15 @@ import { Calendar } from "@/components/ui/calendar";
 
 type Status = "todo" | "in-progress" | "done";
 type Priority = "low" | "medium" | "high";
+
+function getErrorMessage(err: unknown) {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "object" && err !== null && "message" in err) {
+    const msg = (err as { message?: unknown }).message;
+    if (typeof msg === "string") return msg;
+  }
+  return "Something went wrong";
+}
 
 function priorityLabel(p: Priority) {
   if (p === "low") return "Low Priority";
@@ -136,19 +144,6 @@ function InteractiveDetails({
 
         <div className="space-y-2">
           <div className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-            Assignee
-          </div>
-
-          <div className="flex items-center gap-3 rounded-2xl border bg-background px-3 py-2">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-purple-600 text-xs font-semibold text-white">
-              JD
-            </div>
-            <div className="text-sm">John Doe</div>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
             Due Date
           </div>
 
@@ -226,6 +221,7 @@ function InteractiveDetails({
           )}
 
           <Button
+            type="button"
             variant="ghost"
             className="w-full justify-center gap-2 rounded-2xl"
             onClick={() =>
@@ -244,14 +240,17 @@ function InteractiveDetails({
 export default function TaskDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
+  const router = useRouter();
 
   const taskQ = useTask(id);
   const projectsQ = useProjects();
+  const del = useDeleteTask();
 
-  if (taskQ.isLoading || projectsQ.isLoading)
+  if (taskQ.isLoading || projectsQ.isLoading) {
     return <Loader label="Loading task..." />;
+  }
 
-  if (taskQ.isError)
+  if (taskQ.isError) {
     return (
       <ErrorState
         title="Failed to load task"
@@ -259,10 +258,10 @@ export default function TaskDetailPage() {
         onRetry={() => taskQ.refetch()}
       />
     );
+  }
 
   const task = taskQ.data!;
   const projects = projectsQ.data ?? [];
-
   const crumb = `Task #${id}`;
 
   return (
@@ -281,22 +280,37 @@ export default function TaskDetailPage() {
             <Bell className="h-4 w-4" />
           </Button>
 
-          <Button variant="outline" className="rounded-2xl gap-2">
-            <Pencil className="h-4 w-4" />
-            Edit
+          <Button asChild variant="outline" className="rounded-2xl gap-2">
+            <Link href={`/tasks/${id}/edit`}>
+              <Pencil className="h-4 w-4" />
+              Edit
+            </Link>
           </Button>
 
-          <Button className="rounded-2xl gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90">
-            <Trash2 className="h-4 w-4" />
-            Delete
-          </Button>
+          <ConfirmDialog
+            loading={del.isPending}
+            title="Delete this task?"
+            description="Are you sure? This will permanently remove the task."
+            confirmText="Delete"
+            trigger={
+              <Button
+                className="rounded-2xl gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                disabled={del.isPending}
+              >
+                <Trash2 className="h-4 w-4" />
+                {del.isPending ? "Deleting..." : "Delete"}
+              </Button>
+            }
+            onConfirm={async () => {
+              await del.mutateAsync(id);
+              router.push("/tasks");
+            }}
+          />
         </div>
       </div>
 
       <div className="space-y-4">
         <TaskDetailCard task={task} />
-        <SubtasksCard subtasks={task.subtasks} />
-        <CommentsCard comments={task.comments} />
 
         <InteractiveDetails
           task={{
@@ -308,6 +322,12 @@ export default function TaskDetailPage() {
           projects={projects}
         />
       </div>
+
+      {del.isError && (
+        <p className="text-sm text-red-600">
+          {getErrorMessage(del.error) ?? "Failed to delete"}
+        </p>
+      )}
     </div>
   );
 }

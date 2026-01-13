@@ -1,8 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { getTask, getTasks } from "./api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createTask, deleteTask, getTask, getTasks, updateTask } from "./api";
 import { taskKeys } from "./query-keys";
+import { TaskFormValues } from "./schema";
 
 export function useTasks(params?: { projectId?: string }) {
   return useQuery({
@@ -16,5 +17,36 @@ export function useTask(id: string) {
     queryKey: taskKeys.detail(id),
     queryFn: () => getTask(id),
     enabled: !!id,
+  });
+}
+
+export function useCreateTask() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (values: TaskFormValues) => createTask(values),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: taskKeys.all });
+    },
+  });
+}
+
+export function useUpdateTask(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (values: TaskFormValues) => updateTask(id, values),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: taskKeys.all });
+      qc.invalidateQueries({ queryKey: taskKeys.detail(id) });
+    },
+  });
+}
+
+export function useDeleteTask() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteTask(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: taskKeys.all });
+    },
   });
 }

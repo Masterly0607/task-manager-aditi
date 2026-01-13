@@ -1,42 +1,73 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Task } from "@/features/tasks/types";
-import { TaskStatusBadge } from "@/components/tasks/task-status-badge";
+"use client";
+
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import type { Task } from "@/features/tasks/types";
+
+function statusLabel(status: Task["status"]) {
+  if (status === "todo") return "To Do";
+  if (status === "in-progress") return "In Progress";
+  return "Done";
+}
+
+function priorityLabel(priority: Task["priority"]) {
+  if (priority === "low") return "Low";
+  if (priority === "medium") return "Medium";
+  return "High";
+}
 
 export function TaskDetailCard({ task }: { task: Task }) {
   return (
     <Card className="rounded-2xl">
-      <CardHeader>
+      <CardContent className="p-6 space-y-4">
+        {/* Header */}
         <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <CardTitle className="truncate">{task.title}</CardTitle>
-            <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-              <TaskStatusBadge status={task.status} />
-              <span>Due {formatDate(task.dueDate)}</span>
+          <div>
+            <h2 className="text-lg font-semibold">{task.title}</h2>
+            <p className="text-sm text-muted-foreground">
+              Due {formatDate(task.dueDate)}
+            </p>
+          </div>
+
+          <Badge variant="secondary" className="rounded-full">
+            {statusLabel(task.status)}
+          </Badge>
+        </div>
+
+        {/* Description */}
+        <div className="space-y-1">
+          <div className="text-xs font-medium uppercase text-muted-foreground">
+            Description
+          </div>
+          <p className="text-sm leading-relaxed">{task.description}</p>
+        </div>
+
+        {/* Meta */}
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border p-3">
+            <div className="text-[11px] font-medium uppercase text-muted-foreground">
+              Project ID
+            </div>
+            <div className="text-sm font-medium">{task.projectId}</div>
+          </div>
+
+          <div className="rounded-2xl border p-3">
+            <div className="text-[11px] font-medium uppercase text-muted-foreground">
+              Priority
+            </div>
+            <div className="text-sm font-medium">
+              {priorityLabel(task.priority)}
             </div>
           </div>
-        </div>
-      </CardHeader>
 
-      <CardContent className="space-y-3">
-        <div>
-          <div className="text-sm font-medium">Description</div>
-          <div className="text-sm text-muted-foreground">
-            {task.description}
-          </div>
-        </div>
-
-        <div>
-          <div className="text-sm font-medium">Tags</div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            {task.tags.map((t) => (
-              <span
-                key={t}
-                className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
-              >
-                {t}
-              </span>
-            ))}
+          <div className="rounded-2xl border p-3">
+            <div className="text-[11px] font-medium uppercase text-muted-foreground">
+              Status
+            </div>
+            <div className="text-sm font-medium">
+              {statusLabel(task.status)}
+            </div>
           </div>
         </div>
       </CardContent>
